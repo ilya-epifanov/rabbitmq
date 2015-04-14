@@ -27,7 +27,7 @@ RUN echo 'deb http://www.rabbitmq.com/debian/ testing main' > /etc/apt/sources.l
 
 ENV RABBITMQ_VERSION 3.5.1-1
 
-RUN apt-get update && apt-get install -y rabbitmq-server=$RABBITMQ_VERSION --no-install-recommends && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y erlang-base-hipe rabbitmq-server=$RABBITMQ_VERSION --no-install-recommends && rm -rf /var/lib/apt/lists/*
 
 # /usr/sbin/rabbitmq-server has some irritating behavior, and only exists to "su - rabbitmq /usr/lib/rabbitmq/bin/rabbitmq-server ..."
 ENV PATH /usr/lib/rabbitmq/bin:$PATH
@@ -38,12 +38,10 @@ RUN sed -E 's!^(\s*-rabbit\s+error_logger)\s+\S*!\1 tty!' /usr/lib/rabbitmq/lib/
 	&& chmod +x /tmp/rabbitmq-server \
 	&& mv /tmp/rabbitmq-server /usr/lib/rabbitmq/lib/rabbitmq_server-*/sbin/rabbitmq-server
 
-RUN rabbitmq-plugins enable --offline rabbitmq_shovel rabbitmq_shovel_management
-
 VOLUME /var/lib/rabbitmq /etc/rabbitmq
 
 COPY docker-entrypoint.sh /
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-EXPOSE 5672 25672
+EXPOSE 5672
 CMD ["rabbitmq-server"]
